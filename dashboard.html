@@ -11,31 +11,42 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: #f2f2f2;
+  background: #f4f8fc;
   text-align: center;
 }
 
+/* ===== Title ===== */
 h1 {
   margin: 20px;
+  padding: 20px;
   font-size: 28px;
+  background: linear-gradient(90deg, #0d47a1, #1976d2);
+  color: white;
+  border-radius: 14px;
 }
 
+/* ===== Info Box ===== */
 .box {
   background: white;
-  padding: 20px;
-  margin: 15px;
-  border-radius: 16px;
-  font-size: 28px;
+  padding: 22px;
+  margin: 18px;
+  border-radius: 18px;
+  font-size: 30px;
+  color: #0d47a1;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
+/* ===== Chart ===== */
 .chart {
   background: white;
   margin: 20px;
-  padding: 15px;
-  border-radius: 16px;
+  padding: 20px;
+  border-radius: 18px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
 }
+
 canvas {
-  height: 300px !important;
+  height: 320px !important;
 }
 </style>
 </head>
@@ -44,8 +55,8 @@ canvas {
 
 <h1 id="title">ESP32 Dashboard</h1>
 
-<div class="box">🌡 อุณหภูมิ: <span id="temp">--</span> °C</div>
-<div class="box">💧 ความชื้น: <span id="hum">--</span> %</div>
+<div class="box">🌡 อุณหภูมิ : <b><span id="temp">--</span> °C</b></div>
+<div class="box">💧 ความชื้น : <b><span id="hum">--</span> %</b></div>
 
 <div class="chart">
   <canvas id="chart"></canvas>
@@ -53,15 +64,15 @@ canvas {
 
 <script>
 const devices = {
-  1: { name: "ESP32 ตัวที่ 1", channel: "3011291", key: "7DJJKPQNXVMO4U21" },
-  2: { name: "ESP32 ตัวที่ 2", channel: "XXXXXXX", key: "YYYYYYY" },
-  3: { name: "ESP32 ตัวที่ 3", channel: "ZZZZZZZ", key: "WWWWWWW" }
+  1: { name: "ESP32 – ห้องที่ 1", channel: "3011291", key: "7DJJKPQNXVMO4U21" },
+  2: { name: "ESP32 – ห้องที่ 2", channel: "XXXXXXX", key: "YYYYYYY" },
+  3: { name: "ESP32 – ห้องที่ 3", channel: "ZZZZZZZ", key: "WWWWWWW" }
 };
 
 const params = new URLSearchParams(window.location.search);
 const id = params.get("device");
-
 const device = devices[id];
+
 document.getElementById("title").innerText = device.name;
 
 const url = `https://api.thingspeak.com/channels/${device.channel}/feeds.json?results=20&api_key=${device.key}`;
@@ -91,8 +102,18 @@ async function loadData() {
     data: {
       labels,
       datasets: [
-        { label: "Temp °C", data: temp, borderColor: "red" },
-        { label: "Humidity %", data: hum, borderColor: "blue" }
+        {
+          label: "Temperature (°C)",
+          data: temp,
+          borderColor: "#d32f2f",
+          tension: 0.3
+        },
+        {
+          label: "Humidity (%)",
+          data: hum,
+          borderColor: "#1976d2",
+          tension: 0.3
+        }
       ]
     }
   });
