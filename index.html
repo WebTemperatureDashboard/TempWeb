@@ -19,8 +19,15 @@ body {
 
 /* หัวเว็บ */
 h1 {
-  font-size: 28px;
+  font-size: 30px;
   margin: 20px 10px;
+}
+
+/* นาฬิกา Real Time */
+#clock {
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 
 /* กล่องค่า */
@@ -33,30 +40,31 @@ h1 {
 
 .box {
   background: white;
-  padding: 20px;
+  padding: 22px;
   border-radius: 16px;
-  font-size: 28px;
+  font-size: 30px;
   line-height: 1.4;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-/* เวลาอัปเดต */
+/* Last Update ใหญ่ อ่านง่าย */
 #lastUpdate {
-  font-size: 18px;
-  margin: 15px 0;
+  font-size: 24px;
+  font-weight: bold;
+  margin: 20px 0;
 }
 
 /* การ์ดกราฟ */
 .chart-card {
   background: white;
-  margin: 30px 15px;
+  margin: 35px 15px;
   padding: 20px;
   border-radius: 18px;
   box-shadow: 0 6px 16px rgba(0,0,0,0.2);
 }
 
 .chart-card h2 {
-  font-size: 22px;
+  font-size: 24px;
   margin-bottom: 15px;
 }
 
@@ -71,6 +79,8 @@ canvas {
 <body>
 
 <h1>📊 Seiko Temp Dashboard</h1>
+
+<div id="clock">--:--:--</div>
 
 <div class="info">
   <div class="box">🌡 อุณหภูมิ <br><b><span id="temp">--</span> °C</b></div>
@@ -90,12 +100,23 @@ canvas {
 </div>
 
 <script>
+/* ================== ThingSpeak ================== */
 const CHANNEL_ID = "3011291";
 const READ_API_KEY = "7DJJKPQNXVMO4U21";
 const url = `https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds.json?results=20&api_key=${READ_API_KEY}`;
 
 let tempChart, humChart;
 
+/* ================== Real Time Clock ================== */
+function updateClock() {
+  const now = new Date();
+  document.getElementById("clock").innerText =
+    now.toLocaleTimeString('th-TH');
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+/* ================== Load Data ================== */
 async function loadData() {
   const res = await fetch(url);
   const data = await res.json();
@@ -111,7 +132,6 @@ async function loadData() {
     humData.push(Number(f.field2));
   });
 
-  // แสดงค่าล่าสุด
   document.getElementById("temp").innerText = tempData.at(-1) ?? "--";
   document.getElementById("hum").innerText = humData.at(-1) ?? "--";
 
@@ -125,6 +145,7 @@ async function loadData() {
   drawHumChart(labels, humData);
 }
 
+/* ================== Charts ================== */
 function drawTempChart(labels, data) {
   if (tempChart) tempChart.destroy();
   tempChart = new Chart(document.getElementById("tempChart"), {
@@ -173,12 +194,8 @@ function chartOptions() {
       }
     },
     scales: {
-      x: {
-        ticks: { font: { size: 16 } }
-      },
-      y: {
-        ticks: { font: { size: 16 } }
-      }
+      x: { ticks: { font: { size: 16 } } },
+      y: { ticks: { font: { size: 16 } } }
     }
   };
 }
