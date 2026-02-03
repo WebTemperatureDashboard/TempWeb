@@ -5,7 +5,6 @@
 <title>Seiko Temp Dashboard</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#ffffff">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -16,27 +15,45 @@ body {
   text-align: center;
   min-height: 100vh;
 
-  /* พื้นหลังรูป + โปร่งแสง */
   background-image:
-    linear-gradient(
-      rgba(255,255,255,0.88),
-      rgba(255,255,255,0.88)
-    ),
-    url("https://mfairshow-2017.factorynetasia.com/upload/companyimg/3563/3563.jpg");
+    linear-gradient(rgba(255,255,255,0.88), rgba(255,255,255,0.88)),
+    url("https://mfairshow-2017.factorynetasia.com/main/company/jp/7480");
 
   background-size: cover;
   background-position: center;
-  background-repeat: no-repeat;
 }
 
-
-/* หัวเว็บ */
+/* ===== Title ===== */
 h1 {
   font-size: 30px;
   margin: 20px 10px;
 }
 
-/* กล่องค่า */
+/* ===== Device Selector ===== */
+.device-selector {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin: 15px 0;
+  flex-wrap: wrap;
+}
+
+.device-selector button {
+  font-size: 20px;
+  padding: 15px 25px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  background: #007aff;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.device-selector button.active {
+  background: #004a99;
+}
+
+/* ===== Info Boxes ===== */
 .info {
   display: flex;
   flex-direction: column;
@@ -53,14 +70,14 @@ h1 {
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-/* Last Update (Real Time) */
+/* ===== Last Update ===== */
 #lastUpdate {
   font-size: 30px;
   font-weight: bold;
   margin: 20px 0;
 }
 
-/* การ์ดกราฟ */
+/* ===== Charts ===== */
 .chart-card {
   background: white;
   margin: 35px 15px;
@@ -74,7 +91,6 @@ h1 {
   margin-bottom: 15px;
 }
 
-/* canvas */
 canvas {
   width: 100% !important;
   height: 320px !important;
@@ -86,6 +102,13 @@ canvas {
 
 <h1>📊 Seiko Temp Dashboard</h1>
 
+<!-- ===== Device Selector ===== -->
+<div class="device-selector">
+  <button id="btn1" onclick="selectDevice(1)" class="active">📟 ESP32 ตัวที่ 1</button>
+  <button id="btn2" onclick="selectDevice(2)">📟 ESP32 ตัวที่ 2</button>
+</div>
+
+<!-- ===== Info ===== -->
 <div class="info">
   <div class="box">
     🌡 อุณหภูมิ <br>
@@ -100,6 +123,7 @@ canvas {
 
 <div id="lastUpdate">⏱ Last update: --</div>
 
+<!-- ===== Charts ===== -->
 <div class="chart-card">
   <h2>🌡 Temperature (°C)</h2>
   <canvas id="tempChart"></canvas>
@@ -111,14 +135,24 @@ canvas {
 </div>
 
 <script>
-/* ================= ThingSpeak ================= */
-const CHANNEL_ID = "3011291";
-const READ_API_KEY = "7DJJKPQNXVMO4U21";
-const url = `https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds.json?results=20&api_key=${READ_API_KEY}`;
+/* ===== ESP32 Devices ===== */
+const devices = {
+  1: {
+    name: "ESP32 ตัวที่ 1",
+    channelId: "3011291",
+    apiKey: "7DJJKPQNXVMO4U21"
+  },
+  2: {
+    name: "ESP32 ตัวที่ 2",
+    channelId: "XXXXXXXX",
+    apiKey: "YYYYYYYYYYYY"
+  }
+};
 
+let currentDevice = 1;
 let tempChart, humChart;
 
-/* ================= Real Time (Last Update) ================= */
+/* ===== Real Time Clock ===== */
 function updateLastUpdateRealTime() {
   const now = new Date();
   document.getElementById("lastUpdate").innerText =
@@ -127,8 +161,22 @@ function updateLastUpdateRealTime() {
 setInterval(updateLastUpdateRealTime, 1000);
 updateLastUpdateRealTime();
 
-/* ================= Load Data ================= */
+/* ===== Select Device ===== */
+function selectDevice(id) {
+  currentDevice = id;
+
+  document.querySelectorAll(".device-selector button")
+    .forEach(b => b.classList.remove("active"));
+  document.getElementById("btn" + id).classList.add("active");
+
+  loadData();
+}
+
+/* ===== Load Data ===== */
 async function loadData() {
+  const d = devices[currentDevice];
+  const url = `https://api.thingspeak.com/channels/${d.channelId}/feeds.json?results=20&api_key=${d.apiKey}`;
+
   const res = await fetch(url);
   const data = await res.json();
   const feeds = data.feeds;
@@ -150,53 +198,13 @@ async function loadData() {
   drawHumChart(labels, humData);
 }
 
-/* ================= Charts ================= */
-function drawTempChart(labels, data) {
-  if (tempChart) tempChart.destroy();
-  tempChart = new Chart(document.getElementById("tempChart"), {
-    type: "line",
-    data: {
-      labels,
-      datasets: [{
-        label: "Temperature °C",
-        data,
-        borderColor: "red",
-        backgroundColor: "rgba(255,0,0,0.15)",
-        tension: 0.3,
-        fill: true
-      }]
-    },
-    options: chartOptions()
-  });
-}
-
-function drawHumChart(labels, data) {
-  if (humChart) humChart.destroy();
-  humChart = new Chart(document.getElementById("humChart"), {
-    type: "line",
-    data: {
-      labels,
-      datasets: [{
-        label: "Humidity %",
-        data,
-        borderColor: "blue",
-        backgroundColor: "rgba(0,0,255,0.15)",
-        tension: 0.3,
-        fill: true
-      }]
-    },
-    options: chartOptions()
-  });
-}
-
+/* ===== Charts ===== */
 function chartOptions() {
   return {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: {
-        labels: { font: { size: 18 } }
-      }
+      legend: { labels: { font: { size: 18 } } }
     },
     scales: {
       x: { ticks: { font: { size: 16 } } },
@@ -205,11 +213,50 @@ function chartOptions() {
   };
 }
 
+function drawTempChart(labels, data) {
+  if (tempChart) tempChart.destroy();
+  tempChart = new Chart(tempChartCanvas, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [{
+        label: "Temperature °C",
+        data,
+        borderColor: "red",
+        backgroundColor: "rgba(255,0,0,0.15)",
+        fill: true,
+        tension: 0.3
+      }]
+    },
+    options: chartOptions()
+  });
+}
+
+function drawHumChart(labels, data) {
+  if (humChart) humChart.destroy();
+  humChart = new Chart(humChartCanvas, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [{
+        label: "Humidity %",
+        data,
+        borderColor: "blue",
+        backgroundColor: "rgba(0,0,255,0.15)",
+        fill: true,
+        tension: 0.3
+      }]
+    },
+    options: chartOptions()
+  });
+}
+
+const tempChartCanvas = document.getElementById("tempChart");
+const humChartCanvas = document.getElementById("humChart");
+
 loadData();
 setInterval(loadData, 20000);
 </script>
 
 </body>
 </html>
-
-
