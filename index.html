@@ -2,260 +2,119 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<title>Seiko Temp Dashboard</title>
-
+<title>Temperature Monitoring</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 body {
   margin: 0;
   font-family: Arial, sans-serif;
+  background: #f5f5f5;
   text-align: center;
-  min-height: 100vh;
-
-  background-image:
-    linear-gradient(rgba(255,255,255,0.88), rgba(255,255,255,0.88)),
-    url("https://mfairshow-2017.factorynetasia.com/main/company/jp/7480");
-
-  background-size: cover;
-  background-position: center;
 }
 
-/* ===== Title ===== */
-h1 {
-  font-size: 30px;
-  margin: 20px 10px;
+.header {
+  background: #155f7c;
+  color: white;
+  font-size: 28px;
+  padding: 20px;
+  margin: 20px;
+  border-radius: 12px;
 }
 
-/* ===== Device Selector ===== */
-.device-selector {
+.update-time {
+  background: #155f7c;
+  color: white;
+  font-size: 22px;
+  padding: 15px;
+  margin: 0 auto 30px;
+  width: fit-content;
+  border-radius: 12px;
+}
+
+.cards {
   display: flex;
-  gap: 15px;
   justify-content: center;
-  margin: 15px 0;
+  gap: 30px;
   flex-wrap: wrap;
 }
 
-.device-selector button {
-  font-size: 20px;
-  padding: 15px 25px;
-  border-radius: 14px;
-  border: none;
-  cursor: pointer;
-  background: #007aff;
+.card {
+  background: #155f7c;
   color: white;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-}
-
-.device-selector button.active {
-  background: #004a99;
-}
-
-/* ===== Info Boxes ===== */
-.info {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  padding: 0 15px;
-}
-
-.box {
-  background: white;
-  padding: 22px;
-  border-radius: 16px;
-  font-size: 30px;
-  line-height: 1.4;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-/* ===== Last Update ===== */
-#lastUpdate {
-  font-size: 30px;
-  font-weight: bold;
-  margin: 20px 0;
-}
-
-/* ===== Charts ===== */
-.chart-card {
-  background: white;
-  margin: 35px 15px;
+  width: 260px;
+  height: 360px;
+  border-radius: 40px;
   padding: 20px;
-  border-radius: 18px;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.3);
 }
 
-.chart-card h2 {
+.card:hover {
+  transform: scale(1.05);
+}
+
+.card-title {
+  background: #0d3f55;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 18px;
+  margin-bottom: 40px;
+}
+
+.card-text {
   font-size: 24px;
-  margin-bottom: 15px;
-}
-
-canvas {
-  width: 100% !important;
-  height: 320px !important;
+  line-height: 1.5;
 }
 </style>
 </head>
 
 <body>
 
-<h1>📊 Seiko Temp Dashboard</h1>
+<div class="header">ชื่อเว็บไซต์</div>
 
-<!-- ===== Device Selector ===== -->
-<div class="device-selector">
-  <button id="btn1" onclick="selectDevice(1)" class="active">📟 ESP32 ตัวที่ 1</button>
-  <button id="btn2" onclick="selectDevice(2)">📟 ESP32 ตัวที่ 2</button>
-</div>
+<div class="update-time" id="time">วันที่ เวลา Update</div>
 
-<!-- ===== Info ===== -->
-<div class="info">
-  <div class="box">
-    🌡 อุณหภูมิ <br>
-    <b><span id="temp">--</span> °C</b>
+<div class="cards">
+
+  <div class="card" onclick="openDevice(1)">
+    <div class="card-title">ชื่อของ ESP32 ตัวที่ 1</div>
+    <div class="card-text">
+      วิดเจ็ตสำหรับเลือกดูข้อมูลแต่ละ<br><br>
+      <b style="font-size:36px;">ESP32</b>
+    </div>
   </div>
 
-  <div class="box">
-    💧 ความชื้น <br>
-    <b><span id="hum">--</span> %</b>
+  <div class="card" onclick="openDevice(2)">
+    <div class="card-title">ชื่อของ ESP32 ตัวที่ 2</div>
+    <div class="card-text">
+      วิดเจ็ตสำหรับเลือกดูข้อมูลแต่ละ<br><br>
+      <b style="font-size:36px;">ESP32</b>
+    </div>
   </div>
-</div>
 
-<div id="lastUpdate">⏱ Last update: --</div>
+  <div class="card" onclick="openDevice(3)">
+    <div class="card-title">ชื่อของ ESP32 ตัวที่ 3</div>
+    <div class="card-text">
+      วิดเจ็ตสำหรับเลือกดูข้อมูลแต่ละ<br><br>
+      <b style="font-size:36px;">ESP32</b>
+    </div>
+  </div>
 
-<!-- ===== Charts ===== -->
-<div class="chart-card">
-  <h2>🌡 Temperature (°C)</h2>
-  <canvas id="tempChart"></canvas>
-</div>
-
-<div class="chart-card">
-  <h2>💧 Humidity (%)</h2>
-  <canvas id="humChart"></canvas>
 </div>
 
 <script>
-/* ===== ESP32 Devices ===== */
-const devices = {
-  1: {
-    name: "ESP32 ตัวที่ 1",
-    channelId: "3011291",
-    apiKey: "7DJJKPQNXVMO4U21"
-  },
-  2: {
-    name: "ESP32 ตัวที่ 2",
-    channelId: "XXXXXXXX",
-    apiKey: "YYYYYYYYYYYY"
-  }
-};
-
-let currentDevice = 1;
-let tempChart, humChart;
-
-/* ===== Real Time Clock ===== */
-function updateLastUpdateRealTime() {
+function updateTime() {
   const now = new Date();
-  document.getElementById("lastUpdate").innerText =
-    "⏱ Last update: " + now.toLocaleTimeString('th-TH');
+  document.getElementById("time").innerText =
+    now.toLocaleString('th-TH');
 }
-setInterval(updateLastUpdateRealTime, 1000);
-updateLastUpdateRealTime();
+setInterval(updateTime, 1000);
+updateTime();
 
-/* ===== Select Device ===== */
-function selectDevice(id) {
-  currentDevice = id;
-
-  document.querySelectorAll(".device-selector button")
-    .forEach(b => b.classList.remove("active"));
-  document.getElementById("btn" + id).classList.add("active");
-
-  loadData();
+function openDevice(id) {
+  window.location.href = "dashboard.html?device=" + id;
 }
-
-/* ===== Load Data ===== */
-async function loadData() {
-  const d = devices[currentDevice];
-  const url = `https://api.thingspeak.com/channels/${d.channelId}/feeds.json?results=20&api_key=${d.apiKey}`;
-
-  const res = await fetch(url);
-  const data = await res.json();
-  const feeds = data.feeds;
-
-  const labels = [];
-  const tempData = [];
-  const humData = [];
-
-  feeds.forEach(f => {
-    labels.push(new Date(f.created_at).toLocaleTimeString('th-TH'));
-    tempData.push(Number(f.field1));
-    humData.push(Number(f.field2));
-  });
-
-  document.getElementById("temp").innerText = tempData.at(-1) ?? "--";
-  document.getElementById("hum").innerText = humData.at(-1) ?? "--";
-
-  drawTempChart(labels, tempData);
-  drawHumChart(labels, humData);
-}
-
-/* ===== Charts ===== */
-function chartOptions() {
-  return {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { labels: { font: { size: 18 } } }
-    },
-    scales: {
-      x: { ticks: { font: { size: 16 } } },
-      y: { ticks: { font: { size: 16 } } }
-    }
-  };
-}
-
-function drawTempChart(labels, data) {
-  if (tempChart) tempChart.destroy();
-  tempChart = new Chart(tempChartCanvas, {
-    type: "line",
-    data: {
-      labels,
-      datasets: [{
-        label: "Temperature °C",
-        data,
-        borderColor: "red",
-        backgroundColor: "rgba(255,0,0,0.15)",
-        fill: true,
-        tension: 0.3
-      }]
-    },
-    options: chartOptions()
-  });
-}
-
-function drawHumChart(labels, data) {
-  if (humChart) humChart.destroy();
-  humChart = new Chart(humChartCanvas, {
-    type: "line",
-    data: {
-      labels,
-      datasets: [{
-        label: "Humidity %",
-        data,
-        borderColor: "blue",
-        backgroundColor: "rgba(0,0,255,0.15)",
-        fill: true,
-        tension: 0.3
-      }]
-    },
-    options: chartOptions()
-  });
-}
-
-const tempChartCanvas = document.getElementById("tempChart");
-const humChartCanvas = document.getElementById("humChart");
-
-loadData();
-setInterval(loadData, 20000);
 </script>
 
 </body>
