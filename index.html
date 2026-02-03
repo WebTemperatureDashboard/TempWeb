@@ -17,11 +17,9 @@ body {
   font-family: Arial;
   text-align: center;
   min-height: 100vh;
-
   background-image:
     linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)),
     url("https://mfairshow-2017.factorynetasia.com/upload/companyimg/3563/3563.jpg");
-
   background-size: cover;
   background-position: center;
 }
@@ -58,6 +56,7 @@ h1 {
 canvas {
   width: 100% !important;
   height: 260px !important;
+  margin-bottom: 20px;
 }
 </style>
 </head>
@@ -72,11 +71,11 @@ canvas {
   <div id="lastUpdate" style="margin-top:10px;font-size:14px;">
   ⏱ Last update: --
 </div>
-
 </div>
 
 <div class="chart-wrap">
-  <canvas id="chart"></canvas>
+  <canvas id="tempChart"></canvas>
+  <canvas id="humChart"></canvas>
 </div>
 
 <script>
@@ -84,7 +83,7 @@ const CHANNEL_ID = "3011291";
 const READ_API_KEY = "7DJJKPQNXVMO4U21";
 const url = `https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds.json?results=20&api_key=${READ_API_KEY}`;
 
-let chart;
+let tempChart, humChart;
 
 async function loadData() {
   const res = await fetch(url);
@@ -101,35 +100,46 @@ async function loadData() {
     humData.push(f.field2);
   });
 
+  // แสดงค่าล่าสุด
   document.getElementById("temp").innerText = tempData.at(-1) ?? "--";
   document.getElementById("hum").innerText = humData.at(-1) ?? "--";
   const lastTime = feeds.at(-1)?.created_at;
-if (lastTime) {
-  document.getElementById("lastUpdate").innerText =
-    "⏱ Last update: " + new Date(lastTime).toLocaleString('th-TH');
+  if (lastTime) {
+    document.getElementById("lastUpdate").innerText =
+      "⏱ Last update: " + new Date(lastTime).toLocaleString('th-TH');
+  }
+
+  drawTempChart(labels, tempData);
+  drawHumChart(labels, humData);
 }
 
-
-  drawChart(labels, tempData, humData);
-}
-
-function drawChart(labels, temp, hum) {
-  const ctx = document.getElementById("chart");
-  if (chart) chart.destroy();
-
-  chart = new Chart(ctx, {
+function drawTempChart(labels, data) {
+  const ctx = document.getElementById("tempChart");
+  if (tempChart) tempChart.destroy();
+  tempChart = new Chart(ctx, {
     type: "line",
     data: {
       labels,
       datasets: [
-        { label: "Temp °C", data: temp, borderColor: "red", tension: 0.3 },
-        { label: "Humidity %", data: hum, borderColor: "blue", tension: 0.3 }
+        { label: "Temperature °C", data, borderColor: "red", tension: 0.3 }
       ]
     },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false
-    }
+    options: { responsive: true, maintainAspectRatio: false }
+  });
+}
+
+function drawHumChart(labels, data) {
+  const ctx = document.getElementById("humChart");
+  if (humChart) humChart.destroy();
+  humChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        { label: "Humidity %", data, borderColor: "blue", tension: 0.3 }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false }
   });
 }
 
