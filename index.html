@@ -8,13 +8,12 @@
 <meta name="theme-color" content="#ffffff">
 
 <link rel="manifest" href="manifest.json">
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 body {
   margin: 0;
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   text-align: center;
   min-height: 100vh;
   background-image:
@@ -25,38 +24,47 @@ body {
 }
 
 h1 {
-  font-size: 26px;
-  margin: 15px 0;
+  font-size: 32px;
+  margin: 20px 0;
 }
 
 .info {
   display: flex;
   justify-content: center;
-  gap: 12px;
+  gap: 20px;
   flex-wrap: wrap;
+  margin-bottom: 20px;
 }
 
 .box {
   background: white;
-  padding: 15px 20px;
+  padding: 20px 25px;
   border-radius: 12px;
-  font-size: 22px;
-  min-width: 140px;
+  font-size: 26px;  /* ตัวหนังสือใหญ่ขึ้น */
+  min-width: 160px;
+  box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+}
+
+#lastUpdate {
+  width: 100%;
+  margin-top: 10px;
+  font-size: 18px; /* ให้อ่านง่าย */
 }
 
 .chart-wrap {
   width: 95%;
   max-width: 900px;
-  margin: 15px auto;
+  margin: 30px auto; /* เพิ่มช่องว่างด้านบน */
   background: white;
   border-radius: 12px;
-  padding: 10px;
+  padding: 20px;
+  box-shadow: 2px 2px 15px rgba(0,0,0,0.2);
 }
 
 canvas {
   width: 100% !important;
-  height: 260px !important;
-  margin-bottom: 20px;
+  height: 300px !important; /* สูงขึ้นเพื่ออ่านง่าย */
+  margin-bottom: 40px; /* ช่องว่างระหว่างกราฟ */
 }
 </style>
 </head>
@@ -68,10 +76,8 @@ canvas {
 <div class="info">
   <div class="box">🌡 <span id="temp">--</span> °C</div>
   <div class="box">💧 <span id="hum">--</span> %</div>
-  <div id="lastUpdate" style="margin-top:10px;font-size:14px;">
-  ⏱ Last update: --
 </div>
-</div>
+<div id="lastUpdate">⏱ Last update: --</div>
 
 <div class="chart-wrap">
   <canvas id="tempChart"></canvas>
@@ -121,10 +127,27 @@ function drawTempChart(labels, data) {
     data: {
       labels,
       datasets: [
-        { label: "Temperature °C", data, borderColor: "red", tension: 0.3 }
+        { 
+          label: "Temperature °C", 
+          data, 
+          borderColor: "red", 
+          backgroundColor: "rgba(255,0,0,0.1)",
+          tension: 0.3,
+          fill: true
+        }
       ]
     },
-    options: { responsive: true, maintainAspectRatio: false }
+    options: { 
+      responsive: true, 
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { font: { size: 16 } } }
+      },
+      scales: {
+        x: { ticks: { font: { size: 14 } } },
+        y: { ticks: { font: { size: 14 } } }
+      }
+    }
   });
 }
 
@@ -136,10 +159,27 @@ function drawHumChart(labels, data) {
     data: {
       labels,
       datasets: [
-        { label: "Humidity %", data, borderColor: "blue", tension: 0.3 }
+        { 
+          label: "Humidity %", 
+          data, 
+          borderColor: "blue", 
+          backgroundColor: "rgba(0,0,255,0.1)",
+          tension: 0.3,
+          fill: true
+        }
       ]
     },
-    options: { responsive: true, maintainAspectRatio: false }
+    options: { 
+      responsive: true, 
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { font: { size: 16 } } }
+      },
+      scales: {
+        x: { ticks: { font: { size: 14 } } },
+        y: { ticks: { font: { size: 14 } } }
+      }
+    }
   });
 }
 
