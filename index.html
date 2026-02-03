@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Seiko Temp Dashboard</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#ffffff">
+
+<link rel="manifest" href="manifest.json">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  text-align: center;
+  min-height: 100vh;
+
+  background-image:
+    linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)),
+    url("https://mfairshow-2017.factorynetasia.com/upload/companyimg/3563/3563.jpg");
+
+  background-size: cover;
+  background-position: center;
+}
+
+h1 {
+  font-size: 26px;
+  margin: 15px 0;
+}
+
+.info {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.box {
+  background: white;
+  padding: 15px 20px;
+  border-radius: 12px;
+  font-size: 22px;
+  min-width: 140px;
+}
+
+.chart-wrap {
+  width: 95%;
+  max-width: 900px;
+  margin: 15px auto;
+  background: white;
+  border-radius: 12px;
+  padding: 10px;
+}
+
+canvas {
+  width: 100% !important;
+  height: 260px !important;
+}
+</style>
+</head>
+
+<body>
+
+<h1>📊 Seiko Temp Dashboard</h1>
+
+<div class="info">
+  <div class="box">🌡 <span id="temp">--</span> °C</div>
+  <div class="box">💧 <span id="hum">--</span> %</div>
+  <div id="lastUpdate" style="margin-top:10px;font-size:14px;">
+  ⏱ Last update: --
+</div>
+
+</div>
+
+<div class="chart-wrap">
+  <canvas id="chart"></canvas>
+</div>
+
+<script>
+const CHANNEL_ID = "3011291";
+const READ_API_KEY = "7DJJKPQNXVMO4U21";
+const url = `https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds.json?results=20&api_key=${READ_API_KEY}`;
+
+let chart;
+
+async function loadData() {
+  const res = await fetch(url);
+  const data = await res.json();
+  const feeds = data.feeds;
+
+  const labels = [];
+  const tempData = [];
+  const humData = [];
+
+  feeds.forEach(f => {
+    labels.push(new Date(f.created_at).toLocaleTimeString('th-TH'));
+    tempData.push(f.field1);
+    humData.push(f.field2);
+  });
+
+  document.getElementById("temp").innerText = tempData.at(-1) ?? "--";
+  document.getElementById("hum").innerText = humData.at(-1) ?? "--";
+  const lastTime = feeds.at(-1)?.created_at;
+if (lastTime) {
+  document.getElementById("lastUpdate").innerText =
+    "⏱ Last update: " + new Date(lastTime).toLocaleString('th-TH');
+}
+
+
+  drawChart(labels, tempData, humData);
+}
+
+function drawChart(labels, temp, hum) {
+  const ctx = document.getElementById("chart");
+  if (chart) chart.destroy();
+
+  chart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        { label: "Temp °C", data: temp, borderColor: "red", tension: 0.3 },
+        { label: "Humidity %", data: hum, borderColor: "blue", tension: 0.3 }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false
+    }
+  });
+}
+
+loadData();
+setInterval(loadData, 20000);
+
+// Register Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js');
+}
+</script>
+
+</body>
+</html>
