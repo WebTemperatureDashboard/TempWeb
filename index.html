@@ -14,8 +14,21 @@ body {
   margin: 0;
   font-family: Arial, sans-serif;
   text-align: center;
-  background: #f2f2f2;
+  min-height: 100vh;
+
+  /* พื้นหลังรูป + โปร่งแสง */
+  background-image:
+    linear-gradient(
+      rgba(255,255,255,0.88),
+      rgba(255,255,255,0.88)
+    ),
+    url("https://mfairshow-2017.factorynetasia.com/main/company/jp/7480");
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
+
 
 /* หัวเว็บ */
 h1 {
@@ -198,3 +211,4 @@ setInterval(loadData, 20000);
 
 </body>
 </html>
+
