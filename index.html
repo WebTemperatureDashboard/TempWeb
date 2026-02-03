@@ -40,9 +40,9 @@ h1 {
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-/* Last Update ใหญ่ อ่านง่าย */
+/* Last Update (Real Time) */
 #lastUpdate {
-  font-size: 24px;
+  font-size: 30px;
   font-weight: bold;
   margin: 20px 0;
 }
@@ -74,8 +74,15 @@ canvas {
 <h1>📊 Seiko Temp Dashboard</h1>
 
 <div class="info">
-  <div class="box">🌡 อุณหภูมิ <br><b><span id="temp">--</span> °C</b></div>
-  <div class="box">💧 ความชื้น <br><b><span id="hum">--</span> %</b></div>
+  <div class="box">
+    🌡 อุณหภูมิ <br>
+    <b><span id="temp">--</span> °C</b>
+  </div>
+
+  <div class="box">
+    💧 ความชื้น <br>
+    <b><span id="hum">--</span> %</b>
+  </div>
 </div>
 
 <div id="lastUpdate">⏱ Last update: --</div>
@@ -91,23 +98,23 @@ canvas {
 </div>
 
 <script>
-/* ================== ThingSpeak ================== */
+/* ================= ThingSpeak ================= */
 const CHANNEL_ID = "3011291";
 const READ_API_KEY = "7DJJKPQNXVMO4U21";
 const url = `https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds.json?results=20&api_key=${READ_API_KEY}`;
 
 let tempChart, humChart;
 
-/* ================== Real Time Clock ================== */
-function updateClock() {
+/* ================= Real Time (Last Update) ================= */
+function updateLastUpdateRealTime() {
   const now = new Date();
-  document.getElementById("clock").innerText =
-    now.toLocaleTimeString('th-TH');
+  document.getElementById("lastUpdate").innerText =
+    "⏱ Last update: " + now.toLocaleTimeString('th-TH');
 }
-setInterval(updateClock, 1000);
-updateClock();
+setInterval(updateLastUpdateRealTime, 1000);
+updateLastUpdateRealTime();
 
-/* ================== Load Data ================== */
+/* ================= Load Data ================= */
 async function loadData() {
   const res = await fetch(url);
   const data = await res.json();
@@ -126,17 +133,11 @@ async function loadData() {
   document.getElementById("temp").innerText = tempData.at(-1) ?? "--";
   document.getElementById("hum").innerText = humData.at(-1) ?? "--";
 
-  const lastTime = feeds.at(-1)?.created_at;
-  if (lastTime) {
-    document.getElementById("lastUpdate").innerText =
-      "⏱ Last update: " + new Date(lastTime).toLocaleString('th-TH');
-  }
-
   drawTempChart(labels, tempData);
   drawHumChart(labels, humData);
 }
 
-/* ================== Charts ================== */
+/* ================= Charts ================= */
 function drawTempChart(labels, data) {
   if (tempChart) tempChart.destroy();
   tempChart = new Chart(document.getElementById("tempChart"), {
@@ -197,5 +198,3 @@ setInterval(loadData, 20000);
 
 </body>
 </html>
-
-
