@@ -9,8 +9,20 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: #f4f8fc;
   text-align: center;
+  min-height: 100vh;
+
+  /* พื้นหลังรูป + โปร่งแสง */
+  background-image:
+    linear-gradient(
+      rgba(255,255,255,0.88),
+      rgba(255,255,255,0.88)
+    ),
+    url("https://mfairshow-2017.factorynetasia.com/upload/companyimg/3563/3563.jpg");
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 /* ===== Header ===== */
@@ -126,3 +138,4 @@ function openDevice(id) {
 
 </body>
 </html>
+
