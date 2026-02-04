@@ -246,7 +246,7 @@ function updateData() {
 setInterval(updateData, 3000);
 updateData();
 
-function selectDevice(id) {
+function selectDevice(channel) {
   window.location.href = "dashboard.html?channel=" + channel;
   alert("เลือกดูข้อมูล ESP32 Channel " + id);
 }
@@ -254,4 +254,5 @@ function selectDevice(id) {
 
 </body>
 </html>
+
 
