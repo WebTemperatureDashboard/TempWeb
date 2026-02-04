@@ -178,11 +178,19 @@ body {
    <div class="card">
   <h3>Temperature</h3>
   <canvas id="tempChart"></canvas>
+     <div id="tempStats" style="margin-top:8px;color:#555;font-size:14px;">
+  Min: -- °C | Max: -- °C | Avg: -- °C
+</div>
+
 </div>
 
 <div class="card">
   <h3>Humidity</h3>
   <canvas id="humChart"></canvas>
+  <div id="humStats" style="margin-top:8px;color:#555;font-size:14px;">
+  Min: -- % | Max: -- % | Avg: -- %
+</div>
+
 </div>
 
 
@@ -202,20 +210,38 @@ const tempChart = new Chart(document.getElementById("tempChart"), {
   type: "line",
   data: { labels: [], datasets: [] },
   options: {
-    responsive: true,
-    plugins: { legend: { position: "bottom" } },
-    scales: { y: { title: { display: true, text: "°C" } } }
+  responsive: true,
+  plugins: {
+    tooltip: {
+      callbacks: {
+        label: function(context) {
+          return context.parsed.y + " °C";
+        }
+      }
+    },
+    legend: { display: true }
   }
+}
+
 });
 
 const humChart = new Chart(document.getElementById("humChart"), {
   type: "line",
   data: { labels: [], datasets: [] },
   options: {
-    responsive: true,
-    plugins: { legend: { position: "bottom" } },
-    scales: { y: { title: { display: true, text: "%" } } }
+  responsive: true,
+  plugins: {
+    tooltip: {
+      callbacks: {
+        label: function(context) {
+          return context.parsed.y + " %";
+        }
+      }
+    },
+    legend: { display: true }
   }
+}
+
 });
 
 // ===== Load Chart Data =====
@@ -238,6 +264,18 @@ async function loadCharts() {
 
       const tempData = json.feeds.map(f => f[`field${ch.temp}`]);
       const humData  = json.feeds.map(f => f[`field${ch.hum}`]);
+      const tStats = calcStats(tempData);
+if (tStats) {
+  document.getElementById("tempStats").innerText =
+    `Min: ${tStats.min} °C | Max: ${tStats.max} °C | Avg: ${tStats.avg} °C`;
+}
+
+const hStats = calcStats(humData);
+if (hStats) {
+  document.getElementById("humStats").innerText =
+    `Min: ${hStats.min} % | Max: ${hStats.max} % | Avg: ${hStats.avg} %`;
+}
+
 
       tempChart.data.labels = labels;
       humChart.data.labels = labels;
@@ -309,11 +347,27 @@ setInterval(() => {
   window.location.href = "dashboard.html?device=" + id;
 }
 
+  function calcStats(arr) {
+  const nums = arr.filter(v => v !== null).map(Number);
+  if (nums.length === 0) return null;
+
+  const min = Math.min(...nums);
+  const max = Math.max(...nums);
+  const avg = nums.reduce((a,b)=>a+b,0) / nums.length;
+
+  return {
+    min: min.toFixed(1),
+    max: max.toFixed(1),
+    avg: avg.toFixed(1)
+  };
+}
+
 </script>
 
 
 </body>
 </html>
+
 
 
 
