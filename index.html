@@ -121,6 +121,21 @@ body {
   color: #888;
 
 }
+  .mail-btn {
+  background: linear-gradient(90deg, #1976d2, #0d47a1);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.mail-btn:hover {
+  opacity: 0.9;
+}
+
 </style>
 </head>
 
@@ -169,6 +184,11 @@ body {
      <span id="h3">-- %</span> 
     </div>
 
+<button class="mail-btn" onclick="sendMail()">
+  📧 แจ้งปัญหาถึงโปรแกรมเมอร์
+</button>
+
+    
   </div>
 
   <!-- Main -->
@@ -371,11 +391,25 @@ setInterval(() => {
   };
 }
 
+  function sendMail() {
+  const to = "phodjanaphon_cha@seiko-spt.co.th";   // 👈 เปลี่ยนเป็นอีเมลจริง
+  const subject = encodeURIComponent("แจ้งปัญหา ESP32 Monitoring System");
+  const body = encodeURIComponent(
+    "รายละเอียดปัญหา:\n\n" +
+    "- Channel: \n" +
+    "- อุณหภูมิ / ความชื้น:\n" +
+    "- เวลาเกิดปัญหา:\n\n" +
+    "แนบข้อมูลเพิ่มเติมได้ที่นี่"
+  );
+
+  window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+}
 </script>
 
 
 </body>
 </html>
+
 
 
 
