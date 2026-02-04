@@ -101,7 +101,7 @@ const devices = {
 /* ===== Get Device ID ===== */
 const params = new URLSearchParams(window.location.search);
 const id = params.get("device");
-const device = devices[id];
+const device = devices[channel];
 
 document.getElementById("title").innerText = device.name;
 
@@ -197,3 +197,4 @@ setInterval(loadData, 20000);
 
 </body>
 </html>
+
