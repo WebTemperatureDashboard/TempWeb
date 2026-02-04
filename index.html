@@ -27,7 +27,6 @@ body {
 
   /* ===== Update Time ===== */
 .update-time {
-  background: white;
   color: #0d47a1;
   font-size: 22px;
   font-weight: 1000;
@@ -244,19 +243,26 @@ async function loadCharts() {
       humChart.data.labels = labels;
 
       tempChart.data.datasets.push({
-        label: ch.name,
-        data: tempData,
-        borderColor: ch.color,
-        tension: 0.3
-      });
+  label: ch.name + " (Temp)",
+  data: tempData,
+  borderColor: "rgba(244, 67, 54, 0.9)",     // 🔴 แดงอ่อน
+  backgroundColor: "rgba(244, 67, 54, 0.15)",
+  borderWidth: 2,
+  tension: 0.35,
+  pointRadius: 3,
+  fill: true
+});
 
-      humChart.data.datasets.push({
-        label: ch.name,
-        data: humData,
-        borderColor: ch.color,
-        tension: 0.3
-      });
-
+humChart.data.datasets.push({
+  label: ch.name + " (Humidity)",
+  data: humData,
+  borderColor: "rgba(66, 165, 245, 0.9)",    // 🔵 น้ำเงินอ่อน
+  backgroundColor: "rgba(66, 165, 245, 0.15)",
+  borderWidth: 2,
+  tension: 0.35,
+  pointRadius: 3,
+  fill: true
+});
     } catch (e) {
       console.log("No data for", ch.name);
     }
@@ -308,6 +314,7 @@ setInterval(() => {
 
 </body>
 </html>
+
 
 
 
