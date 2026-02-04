@@ -25,6 +25,13 @@ body {
   font-weight: 600;
 }
 
+  /* ===== Update Time ===== */
+.update-time {
+  color: #0d47a1;
+  font-size: 22px;
+  font-weight: 1000;
+}
+
 /* ===== Layout ===== */
 .container {
   display: grid;
@@ -40,6 +47,7 @@ body {
   gap: 14px;
 }
 
+/* ===== Channel Card ===== */
 .channel {
   background: #fff;
   border-radius: 8px;
@@ -69,8 +77,16 @@ body {
   color: white;
 }
 
-.channel h4 { margin: 0; }
-.channel small { color: #777; font-size: 12px; }
+.channel h4 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.channel small {
+  color: #777;
+  font-size: 12px;
+}
+
 .channel span {
   font-size: 22px;
   font-weight: bold;
@@ -87,13 +103,6 @@ body {
 .info-bar {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-}
-
-.update-time {
-  color: #0d47a1;
-  font-size: 18px;
-  font-weight: 600;
 }
 
 .card {
@@ -103,14 +112,13 @@ body {
   box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
-.stats {
-  margin-top: 8px;
-  font-size: 14px;
-  color: #555;
-}
-
-@media (max-width: 900px) {
-  .container { grid-template-columns: 1fr; }
+.chart-placeholder {
+  height: 240px;
+  background: linear-gradient(180deg, #e3f2fd, #ffffff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
 }
 </style>
 </head>
@@ -121,196 +129,209 @@ body {
 
 <div class="container">
 
-<!-- ===== Sidebar ===== -->
-<div class="sidebar">
+  <!-- Sidebar -->
+  <div class="sidebar">
 
-  <div class="channel" onclick="openDevice(1)">
-    <div class="channel-left">
-      <div class="icon">🌡️</div>
-      <div>
-        <h4>Channel 1</h4>
-        <small id="t1-time">Last update --</small>
+    <div class="channel" onclick="openDevice(1)">
+      <div class="channel-left">
+        <div class="icon">🌡️</div>
+        <div>
+          <h4>Channel 1</h4>
+          <small id="t1-time">Last update --</small>
+        </div>
       </div>
+      <span id="t1">-- °C</span>
     </div>
-    <span id="t1">-- °C</span>
+
+    <div class="channel" onclick="openDevice(2)">
+      <div class="channel-left">
+        <div class="icon">🌡️</div>
+        <div>
+          <h4>Channel 2</h4>
+          <small id="t2-time">Last update --</small>
+        </div>
+      </div>
+      <span id="t2">-- °C</span>
+    </div>
+
+    <div class="channel" onclick="openDevice(3)">
+      <div class="channel-left">
+        <div class="icon">🌡️</div>
+        <div>
+          <h4>Channel 3</h4>
+          <small id="t3-time">Last update --</small>
+        </div>
+      </div>
+      <span id="t3">-- °C</span>
+    </div>
+
   </div>
 
-  <div class="channel" onclick="openDevice(2)">
-    <div class="channel-left">
-      <div class="icon">🌡️</div>
-      <div>
-        <h4>Channel 2</h4>
-        <small id="t2-time">Last update --</small>
-      </div>
-    </div>
-    <span id="t2">-- °C</span>
-  </div>
+  <!-- Main -->
+  <div class="main">
 
-  <div class="channel" onclick="openDevice(3)">
-    <div class="channel-left">
-      <div class="icon">🌡️</div>
-      <div>
-        <h4>Channel 3</h4>
-        <small id="t3-time">Last update --</small>
-      </div>
+    <div class="info-bar">
+      <b style="color:#1976d2;">Analytics Dashboard</b>
+      <div " class="update-time" id="time">Last update --</div>
     </div>
-    <span id="t3">-- °C</span>
-  </div>
+
+   <div class="card">
+  <h3>Temperature</h3>
+  <canvas id="tempChart"></canvas>
+     <div id="tempStats" style="margin-top:8px;color:#555;font-size:14px;">
+  Min: -- °C | Max: -- °C | Avg: -- °C
+</div>
 
 </div>
 
-<!-- ===== Main ===== -->
-<div class="main">
-
-  <div class="info-bar">
-    <b style="color:#1976d2;">Analytics Dashboard</b>
-    <div class="update-time" id="time">Last update --</div>
-  </div>
-
-  <div class="card">
-    <h3>Temperature</h3>
-    <canvas id="tempChart"></canvas>
-    <div id="tempStats" class="stats">
-      Min: -- °C | Max: -- °C | Avg: -- °C
-    </div>
-  </div>
-
-  <div class="card">
-    <h3>Humidity</h3>
-    <canvas id="humChart"></canvas>
-    <div id="humStats" class="stats">
-      Min: -- % | Max: -- % | Avg: -- %
-    </div>
-  </div>
+<div class="card">
+  <h3>Humidity</h3>
+  <canvas id="humChart"></canvas>
+  <div id="humStats" style="margin-top:8px;color:#555;font-size:14px;">
+  Min: -- % | Max: -- % | Avg: -- %
+</div>
 
 </div>
+
+
+  </div>
+
 </div>
 
 <script>
-// ===== Channel Config =====
 const CHANNELS = {
-  1: { id: 3011291, temp: 1, hum: 2, name: "Channel 1" },
-  2: { id: 234567,  temp: 1, hum: 2, name: "Channel 2" },
-  3: { id: 345678,  temp: 1, hum: 2, name: "Channel 3" }
+  1: { id: 3011291, temp: 1, hum: 2, name: "Channel 1", color: "#d32f2f" },
+  2: { id: 234567,  temp: 1, hum: 2, name: "Channel 2", color: "#1976d2" },
+  3: { id: 345678,  temp: 1, hum: 2, name: "Channel 3", color: "#388e3c" }
 };
 
-// ===== Charts =====
-const tempChart = new Chart(tempChart = document.getElementById("tempChart"), {
+// ===== Init Charts =====
+const tempChart = new Chart(document.getElementById("tempChart"), {
   type: "line",
   data: { labels: [], datasets: [] },
   options: {
-    responsive: true,
-    plugins: {
-      tooltip: {
-        callbacks: {
-          label: ctx => `Temperature : ${ctx.parsed.y} °C`
+  responsive: true,
+  plugins: {
+    tooltip: {
+      callbacks: {
+        label: function(context) {
+          return context.parsed.y + " °C";
         }
       }
-    }
+    },
+    legend: { display: true }
   }
+}
+
 });
 
 const humChart = new Chart(document.getElementById("humChart"), {
   type: "line",
   data: { labels: [], datasets: [] },
   options: {
-    responsive: true,
-    plugins: {
-      tooltip: {
-        callbacks: {
-          label: ctx => `Humidity : ${ctx.parsed.y} %`
+  responsive: true,
+  plugins: {
+    tooltip: {
+      callbacks: {
+        label: function(context) {
+          return context.parsed.y + " %";
         }
       }
-    }
+    },
+    legend: { display: true }
   }
+}
+
 });
 
-// ===== Load Charts =====
+// ===== Load Chart Data =====
 async function loadCharts() {
   tempChart.data.datasets = [];
   humChart.data.datasets = [];
 
   for (const key in CHANNELS) {
     const ch = CHANNELS[key];
-
     try {
       const res = await fetch(
         `https://api.thingspeak.com/channels/${ch.id}/feeds.json?results=20`
       );
-      const data = await res.json();
-      if (!data.feeds) continue;
+      const json = await res.json();
+      if (!json.feeds) continue;
 
-      const labels = data.feeds.map(f =>
+      const labels = json.feeds.map(f =>
         new Date(f.created_at).toLocaleTimeString("th-TH")
       );
 
-      const temps = data.feeds.map(f => Number(f[`field${ch.temp}`]));
-      const hums  = data.feeds.map(f => Number(f[`field${ch.hum}`]));
+      const tempData = json.feeds.map(f => f[`field${ch.temp}`]);
+      const humData  = json.feeds.map(f => f[`field${ch.hum}`]);
+      const tStats = calcStats(tempData);
+if (tStats) {
+  document.getElementById("tempStats").innerText =
+    `Min: ${tStats.min} °C | Max: ${tStats.max} °C | Avg: ${tStats.avg} °C`;
+}
+
+const hStats = calcStats(humData);
+if (hStats) {
+  document.getElementById("humStats").innerText =
+    `Min: ${hStats.min} % | Max: ${hStats.max} % | Avg: ${hStats.avg} %`;
+}
+
 
       tempChart.data.labels = labels;
       humChart.data.labels = labels;
 
       tempChart.data.datasets.push({
-        label: ch.name,
-        data: temps,
-        borderColor: "rgba(244,67,54,0.9)",
-        backgroundColor: "rgba(244,67,54,0.15)",
-        fill: true,
-        tension: 0.35
-      });
+  label: ch.name + " (Temp)",
+  data: tempData,
+  borderColor: "rgba(244, 67, 54, 0.9)",     // 🔴 แดงอ่อน
+  backgroundColor: "rgba(244, 67, 54, 0.15)",
+  borderWidth: 2,
+  tension: 0.35,
+  pointRadius: 3,
+  fill: true
+});
 
-      humChart.data.datasets.push({
-        label: ch.name,
-        data: hums,
-        borderColor: "rgba(66,165,245,0.9)",
-        backgroundColor: "rgba(66,165,245,0.15)",
-        fill: true,
-        tension: 0.35
-      });
-
-      updateStats("tempStats", temps, "°C");
-      updateStats("humStats", hums, "%");
-
-    } catch {}
+humChart.data.datasets.push({
+  label: ch.name + " (Humidity)",
+  data: humData,
+  borderColor: "rgba(66, 165, 245, 0.9)",    // 🔵 น้ำเงินอ่อน
+  backgroundColor: "rgba(66, 165, 245, 0.15)",
+  borderWidth: 2,
+  tension: 0.35,
+  pointRadius: 3,
+  fill: true
+});
+    } catch (e) {
+      console.log("No data for", ch.name);
+    }
   }
 
   tempChart.update();
   humChart.update();
 }
 
-// ===== Stats =====
-function updateStats(el, arr, unit) {
-  const nums = arr.filter(v => !isNaN(v));
-  if (!nums.length) return;
-
-  const min = Math.min(...nums).toFixed(1);
-  const max = Math.max(...nums).toFixed(1);
-  const avg = (nums.reduce((a,b)=>a+b,0)/nums.length).toFixed(1);
-
-  document.getElementById(el).innerHTML =
-    `<b>Min</b>: ${min} ${unit} &nbsp;&nbsp;
-     <b>Max</b>: ${max} ${unit} &nbsp;&nbsp;
-     <b>Avg</b>: ${avg} ${unit}`;
-}
-
-// ===== Sidebar Latest =====
-async function loadLatest(ch, valId, timeId) {
+// ===== Load Sidebar Latest =====
+async function loadTemp(ch, valueId, timeId) {
   try {
     const res = await fetch(
       `https://api.thingspeak.com/channels/${ch.id}/feeds/last.json`
     );
-    const d = await res.json();
-    document.getElementById(valId).innerText =
-      Number(d[`field${ch.temp}`]).toFixed(1) + " °C";
+    const data = await res.json();
+
+    if (!data[`field${ch.temp}`]) return;
+
+    document.getElementById(valueId).innerText =
+      parseFloat(data[`field${ch.temp}`]).toFixed(1) + " °C";
+
     document.getElementById(timeId).innerText =
-      "Last update " + new Date(d.created_at).toLocaleTimeString("th-TH");
+      "Last update " + new Date(data.created_at).toLocaleTimeString("th-TH");
   } catch {}
 }
 
 function refreshAll() {
-  loadLatest(CHANNELS[1], "t1", "t1-time");
-  loadLatest(CHANNELS[2], "t2", "t2-time");
-  loadLatest(CHANNELS[3], "t3", "t3-time");
+  loadTemp(CHANNELS[1], "t1", "t1-time");
+  loadTemp(CHANNELS[2], "t2", "t2-time");
+  loadTemp(CHANNELS[3], "t3", "t3-time");
   loadCharts();
 }
 
@@ -322,10 +343,41 @@ setInterval(() => {
     "Last update: " + new Date().toLocaleString("th-TH");
 }, 1000);
 
-function openDevice(id) {
+  function openDevice(id) {
   window.location.href = "dashboard.html?device=" + id;
 }
+
+  function calcStats(arr) {
+  const nums = arr.filter(v => v !== null).map(Number);
+  if (nums.length === 0) return null;
+
+  const min = Math.min(...nums);
+  const max = Math.max(...nums);
+  const avg = nums.reduce((a,b)=>a+b,0) / nums.length;
+
+  return {
+    min: min.toFixed(1),
+    max: max.toFixed(1),
+    avg: avg.toFixed(1)
+  };
+}
+
 </script>
+
 
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
