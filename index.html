@@ -2,23 +2,15 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<title>Temperature & Humidity Monitoring</title>
+<title>ESP32 Monitoring System</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  min-height: 100vh;
-
-  background-image:
-    linear-gradient(rgba(255,255,255,0.88), rgba(255,255,255,0.88)),
-    url("https://mfairshow-2017.factorynetasia.com/upload/companyimg/3563/3563.jpg");
-  background-size: cover;
-  background-position: center;
+  background: #f4f8fc;
+  text-align: center;
 }
 
 /* ===== Header ===== */
@@ -27,231 +19,110 @@ body {
   color: white;
   font-size: 30px;
   padding: 22px;
-  margin: 15px;
+  margin: 20px;
   border-radius: 14px;
-  text-align: center;
 }
 
-/* ===== Layout ===== */
-.container {
+/* ===== Update Time ===== */
+.update-time {
+  background: white;
+  color: #0d47a1;
+  font-size: 22px;
+  padding: 14px 28px;
+  margin: 0 auto 30px;
+  width: fit-content;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* ===== Cards ===== */
+.cards {
   display: flex;
-  gap: 20px;
-  padding: 20px;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
 }
 
-/* ===== Sidebar ===== */
-.sidebar {
-  width: 260px;
-}
-
-.device {
+.card {
   background: linear-gradient(180deg, #1976d2, #0d47a1);
   color: white;
-  border-radius: 20px;
-  padding: 16px;
-  margin-bottom: 15px;
+  width: 260px;
+  height: 360px;
+  border-radius: 40px;
+  padding: 20px;
   cursor: pointer;
-  box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.3);
+  transition: transform 0.2s;
 }
 
-.device h3 {
-  margin: 0;
+.card:hover {
+  transform: translateY(-8px);
+}
+
+/* ===== Card Title ===== */
+.card-title {
+  background: rgba(255,255,255,0.15);
+  padding: 10px;
+  border-radius: 12px;
   font-size: 18px;
+  margin-bottom: 40px;
 }
 
-.device p {
-  font-size: 22px;
-  margin: 10px 0 0;
-}
-
-/* ===== Main ===== */
-.main {
-  flex: 1;
-}
-
-/* ===== Info Cards ===== */
-.info {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
-}
-
-.info-card {
-  background: white;
-  border-radius: 16px;
-  padding: 18px;
-  flex: 1;
-  min-width: 200px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-  text-align: center;
-}
-
-.info-card h4 {
-  margin: 0;
-  color: #0d47a1;
-}
-
-.info-card div {
-  font-size: 28px;
-  margin-top: 8px;
-}
-
-/* ===== Charts ===== */
-.chart-box {
-  background: white;
-  border-radius: 16px;
-  padding: 15px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-}
-
-canvas {
-  width: 100% !important;
-  height: 300px !important;
-}
-
-/* ===== Responsive ===== */
-@media (max-width: 900px) {
-  .container {
-    flex-direction: column;
-  }
-  .sidebar {
-    width: 100%;
-  }
+/* ===== Card Text ===== */
+.card-text {
+  font-size: 24px;
+  line-height: 1.5;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">Temperature & Humidity Monitoring</div>
+<div class="header">ระบบติดตามอุณหภูมิและความชื้น</div>
 
-<div class="container">
+<div class="update-time" id="time">วันที่ เวลา Update</div>
 
-  <!-- Sidebar -->
-  <div class="sidebar">
-    <div class="device" onclick="selectDevice(1)">
-      <h3>ESP32 – Channel 1</h3>
-      <p id="t1">-- °C</p>
-    </div>
-    <div class="device" onclick="selectDevice(2)">
-      <h3>ESP32 – Channel 2</h3>
-      <p id="t2">-- °C</p>
-    </div>
-    <div class="device" onclick="selectDevice(3)">
-      <h3>ESP32 – Channel 3</h3>
-      <p id="t3">-- °C</p>
+<div class="cards">
+
+  <div class="card" onclick="openDevice(1)">
+    <div class="card-title">ESP32 – ห้องที่ 1</div>
+    <div class="card-text">
+      เลือกดูข้อมูล<br><br>
+      <b style="font-size:36px;">ESP32</b>
     </div>
   </div>
 
-  <!-- Main Content -->
-  <div class="main">
-
-    <!-- Info -->
-    <div class="info">
-      <div class="info-card">
-        <h4>Current Temperature</h4>
-        <div id="tempNow">-- °C</div>
-      </div>
-      <div class="info-card">
-        <h4>Current Humidity</h4>
-        <div id="humNow">-- %</div>
-      </div>
-      <div class="info-card">
-        <h4>Last Update</h4>
-        <div id="timeNow">--</div>
-      </div>
+  <div class="card" onclick="openDevice(2)">
+    <div class="card-title">ESP32 – ห้องที่ 2</div>
+    <div class="card-text">
+      เลือกดูข้อมูล<br><br>
+      <b style="font-size:36px;">ESP32</b>
     </div>
-
-    <!-- Temperature Chart -->
-    <div class="chart-box">
-      <h3 style="color:#d32f2f;">Temperature (°C)</h3>
-      <canvas id="tempChart"></canvas>
-    </div>
-
-    <!-- Humidity Chart -->
-    <div class="chart-box">
-      <h3 style="color:#1976d2;">Humidity (%)</h3>
-      <canvas id="humChart"></canvas>
-    </div>
-
   </div>
+
+  <div class="card" onclick="openDevice(3)">
+    <div class="card-title">ESP32 – ห้องที่ 3</div>
+    <div class="card-text">
+      เลือกดูข้อมูล<br><br>
+      <b style="font-size:36px;">ESP32</b>
+    </div>
+  </div>
+
 </div>
 
 <script>
-let labels = [];
-let tempData = [];
-let humData = [];
-
-const tempChart = new Chart(
-  document.getElementById("tempChart"), {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        label: 'Temperature',
-        data: tempData,
-        borderColor: 'red',
-        tension: 0.3
-      }]
-    }
-  }
-);
-
-const humChart = new Chart(
-  document.getElementById("humChart"), {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        label: 'Humidity',
-        data: humData,
-        borderColor: 'blue',
-        tension: 0.3
-      }]
-    }
-  }
-);
-
-// ===== Simulate Real-time Data =====
-function updateData() {
+function updateTime() {
   const now = new Date();
-  labels.push(now.toLocaleTimeString('th-TH'));
-
-  if (labels.length > 20) {
-    labels.shift();
-    tempData.shift();
-    humData.shift();
-  }
-
-  const t = (25 + Math.random() * 3).toFixed(1);
-  const h = (55 + Math.random() * 5).toFixed(1);
-
-  tempData.push(t);
-  humData.push(h);
-
-  document.getElementById("tempNow").innerText = t + " °C";
-  document.getElementById("humNow").innerText = h + " %";
-  document.getElementById("timeNow").innerText = now.toLocaleString('th-TH');
-
-  document.getElementById("t1").innerText = t + " °C";
-  document.getElementById("t2").innerText = (t - 1).toFixed(1) + " °C";
-  document.getElementById("t3").innerText = (t + 1).toFixed(1) + " °C";
-
-  tempChart.update();
-  humChart.update();
+  document.getElementById("time").innerText =
+    now.toLocaleString('th-TH');
 }
+setInterval(updateTime, 1000);
+updateTime();
 
-setInterval(updateData, 3000);
-updateData();
-
-function selectDevice(channel) {
-  window.location.href = "dashboard.html?channel=" + channel;
-  alert("เลือกดูข้อมูล ESP32 Channel " + id);
+function openDevice(id) {
+  window.location.href = "dashboard.html?device=" + id;
 }
 </script>
 
 </body>
 </html>
-
