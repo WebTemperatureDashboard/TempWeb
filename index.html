@@ -316,7 +316,7 @@ humChart.data.datasets.push({
 }
 
 // ===== Load Sidebar Latest =====
-async function loadTemp(ch, valueId, timeId) {
+async function loadTemp(ch, valueId, timeId, humiId) {
   try {
     const res = await fetch(
       `https://api.thingspeak.com/channels/${ch.id}/feeds/last.json`
@@ -327,6 +327,9 @@ async function loadTemp(ch, valueId, timeId) {
 
     document.getElementById(valueId).innerText =
       parseFloat(data[`field${ch.temp}`]).toFixed(1) + " °C";
+
+    document.getElementById(humiId).innerText = 
+      parseFloat(data[`field${ch.hum}`]).toFixed(1) + " %";
 
     document.getElementById(timeId).innerText =
       "Last update " + new Date(data.created_at).toLocaleTimeString("th-TH");
@@ -372,6 +375,7 @@ setInterval(() => {
 
 </body>
 </html>
+
 
 
 
