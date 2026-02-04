@@ -290,10 +290,16 @@ setInterval(() => {
   document.getElementById("time").innerText =
     "Last update: " + new Date().toLocaleString("th-TH");
 }, 1000);
+
+  function openDevice(id) {
+  window.location.href = "dashboard.html?device=" + id;
+}
+
 </script>
 
 
 </body>
 </html>
+
 
 
