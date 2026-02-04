@@ -9,103 +9,125 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: #f4f8fc;
-  text-align: center;
+  background: #f1f3f6;
 }
 
 /* ===== Header ===== */
 .header {
   background: linear-gradient(90deg, #0d47a1, #1976d2);
   color: white;
-  font-size: 30px;
-  padding: 22px;
-  margin: 20px;
-  border-radius: 14px;
+  font-size: 28px;
+  padding: 20px 30px;
+}
+
+/* ===== Layout ===== */
+.container {
+  display: flex;
+  padding: 20px;
+  gap: 20px;
+}
+
+/* ===== Sidebar ===== */
+.sidebar {
+  width: 320px;
+}
+
+/* ===== Channel Card ===== */
+.channel {
+  background: white;
+  border-radius: 6px;
+  padding: 16px 18px;
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  border-left: 6px solid #1976d2;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  transition: background 0.2s;
+}
+
+.channel:hover {
+  background: #f5f9ff;
+}
+
+.channel h4 {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.channel span {
+  font-size: 22px;
+  font-weight: bold;
+  color: #1976d2;
+}
+
+/* ===== Main Area (Placeholder) ===== */
+.main {
+  flex: 1;
+  background: white;
+  border-radius: 6px;
+  padding: 20px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
 /* ===== Update Time ===== */
 .update-time {
-  background: white;
-  color: #0d47a1;
-  font-size: 22px;
-  padding: 14px 28px;
-  margin: 0 auto 30px;
-  width: fit-content;
-  border-radius: 14px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  text-align: right;
+  color: #555;
+  font-size: 14px;
+  margin-bottom: 10px;
 }
 
-/* ===== Cards ===== */
-.cards {
-  display: flex;
-  justify-content: center;
-  gap: 30px;
-  flex-wrap: wrap;
-}
-
-.card {
-  background: linear-gradient(180deg, #1976d2, #0d47a1);
-  color: white;
-  width: 260px;
-  height: 360px;
-  border-radius: 40px;
-  padding: 20px;
-  cursor: pointer;
-  box-shadow: 0 8px 18px rgba(0,0,0,0.3);
-  transition: transform 0.2s;
-}
-
-.card:hover {
-  transform: translateY(-8px);
-}
-
-/* ===== Card Title ===== */
-.card-title {
-  background: rgba(255,255,255,0.15);
-  padding: 10px;
-  border-radius: 12px;
-  font-size: 18px;
-  margin-bottom: 40px;
-}
-
-/* ===== Card Text ===== */
-.card-text {
-  font-size: 24px;
-  line-height: 1.5;
+/* ===== Responsive ===== */
+@media (max-width: 900px) {
+  .container {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">ระบบติดตามอุณหภูมิและความชื้น</div>
+<div class="header">
+  Temperature & Humidity Monitoring
+</div>
 
-<div class="update-time" id="time">วันที่ เวลา Update</div>
+<div class="container">
 
-<div class="cards">
+  <!-- Sidebar -->
+  <div class="sidebar">
 
-  <div class="card" onclick="openDevice(1)">
-    <div class="card-title">ESP32 – ห้องที่ 1</div>
-    <div class="card-text">
-      เลือกดูข้อมูล<br><br>
-      <b style="font-size:36px;">ESP32</b>
+    <div class="channel" onclick="openDevice(1)">
+      <h4>Channel 1</h4>
+      <span>-- °C</span>
     </div>
+
+    <div class="channel" onclick="openDevice(2)">
+      <h4>Channel 2</h4>
+      <span>-- °C</span>
+    </div>
+
+    <div class="channel" onclick="openDevice(3)">
+      <h4>Channel 3</h4>
+      <span>-- °C</span>
+    </div>
+
   </div>
 
-  <div class="card" onclick="openDevice(2)">
-    <div class="card-title">ESP32 – ห้องที่ 2</div>
-    <div class="card-text">
-      เลือกดูข้อมูล<br><br>
-      <b style="font-size:36px;">ESP32</b>
-    </div>
-  </div>
-
-  <div class="card" onclick="openDevice(3)">
-    <div class="card-title">ESP32 – ห้องที่ 3</div>
-    <div class="card-text">
-      เลือกดูข้อมูล<br><br>
-      <b style="font-size:36px;">ESP32</b>
-    </div>
+  <!-- Main Content -->
+  <div class="main">
+    <div class="update-time" id="time">Last update --</div>
+    <h3 style="color:#1976d2;">กรุณาเลือก Channel ทางด้านซ้าย</h3>
+    <p style="color:#666;">
+      ระบบยังคงทำงานเหมือนเดิม  
+      เมื่อเลือก Channel จะไปยังหน้า Dashboard
+    </p>
   </div>
 
 </div>
@@ -114,7 +136,7 @@ body {
 function updateTime() {
   const now = new Date();
   document.getElementById("time").innerText =
-    now.toLocaleString('th-TH');
+    "Last update: " + now.toLocaleString('th-TH');
 }
 setInterval(updateTime, 1000);
 updateTime();
