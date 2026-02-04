@@ -334,9 +334,9 @@ async function loadTemp(ch, valueId, timeId) {
 }
 
 function refreshAll() {
-  loadTemp(CHANNELS[1], "t1", "t1-time");
-  loadTemp(CHANNELS[2], "t2", "t2-time");
-  loadTemp(CHANNELS[3], "t3", "t3-time");
+  loadTemp(CHANNELS[1], "t1", "t1-time", "h1");
+  loadTemp(CHANNELS[2], "t2", "t2-time", "h2");
+  loadTemp(CHANNELS[3], "t3", "t3-time", "h3");
   loadCharts();
 }
 
@@ -372,6 +372,7 @@ setInterval(() => {
 
 </body>
 </html>
+
 
 
 
