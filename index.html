@@ -119,6 +119,12 @@ body {
   align-items: center;
   justify-content: center;
   color: #888;
+
+  .value {
+  font-size: 16px;   /* ปรับเล็กลงได้ตามต้องการ */
+  font-weight: 600;
+}
+
 }
 </style>
 </head>
@@ -140,8 +146,8 @@ body {
           <small id="t1-time">Last update --</small>
         </div>
       </div>
-      <span id="t1">-- °C</span>
-      <span id="h1">-- %</span>
+      <span id="t1" class="value">-- °C</span>
+      <span id="h1" class="value">-- %</span>
     </div>
 
     <div class="channel" onclick="openDevice(2)">
@@ -152,8 +158,8 @@ body {
           <small id="t2-time">Last update --</small>
         </div>
       </div>
-      <span id="t2">-- °C</span>
-      <span id="h2">-- %</span>
+      <span id="t2" class="value">-- °C</span>
+      <span id="h2" class="value">-- %</span>
     </div>
 
     <div class="channel" onclick="openDevice(3)">
@@ -164,8 +170,8 @@ body {
           <small id="t3-time">Last update --</small>
         </div>
       </div>
-      <span id="t3">-- °C</span>
-      <span id="h3">-- %</span>
+      <span id="t3" class="value">-- °C</span>
+      <span id="h3" class="value">-- %</span>
     </div>
 
   </div>
@@ -375,6 +381,7 @@ setInterval(() => {
 
 </body>
 </html>
+
 
 
 
