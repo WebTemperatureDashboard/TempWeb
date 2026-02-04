@@ -2,91 +2,149 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<title>ESP32 Monitoring System</title>
+<title>Temperature & Humidity Monitoring</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+* { box-sizing: border-box; }
+
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f1f3f6;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #f2f4f7;
 }
 
 /* ===== Header ===== */
 .header {
   background: linear-gradient(90deg, #0d47a1, #1976d2);
-  color: white;
-  font-size: 28px;
-  padding: 20px 30px;
+  color: #fff;
+  padding: 22px 32px;
+  font-size: 30px;
+  font-weight: 600;
 }
 
 /* ===== Layout ===== */
 .container {
-  display: flex;
-  padding: 20px;
+  display: grid;
+  grid-template-columns: 320px 1fr;
   gap: 20px;
+  padding: 20px;
 }
 
 /* ===== Sidebar ===== */
 .sidebar {
-  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 /* ===== Channel Card ===== */
 .channel {
-  background: white;
-  border-radius: 6px;
-  padding: 16px 18px;
-  margin-bottom: 15px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 18px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   cursor: pointer;
-  border-left: 6px solid #1976d2;
   box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-  transition: background 0.2s;
+  border-left: 6px solid #1976d2;
+  transition: 0.2s;
 }
 
 .channel:hover {
-  background: #f5f9ff;
+  background: #f6f9ff;
+}
+
+.channel-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #1976d2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
 }
 
 .channel h4 {
   margin: 0;
   font-size: 16px;
-  color: #333;
+}
+
+.channel small {
+  color: #777;
+  font-size: 12px;
 }
 
 .channel span {
   font-size: 22px;
   font-weight: bold;
-  color: #1976d2;
+  color: #d32f2f;
 }
 
-/* ===== Main Area (Placeholder) ===== */
+/* ===== Main Content ===== */
 .main {
-  flex: 1;
+  display: grid;
+  grid-template-rows: auto 1fr 1fr;
+  gap: 20px;
+}
+
+/* ===== Info Bar ===== */
+.info-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.info-title {
+  font-size: 20px;
+  color: #1976d2;
+  font-weight: 600;
+}
+
+.update-time {
+  color: #555;
+  font-size: 14px;
+}
+
+/* ===== Card ===== */
+.card {
   background: white;
-  border-radius: 6px;
-  padding: 20px;
+  border-radius: 8px;
+  padding: 16px 20px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
-/* ===== Update Time ===== */
-.update-time {
-  text-align: right;
-  color: #555;
-  font-size: 14px;
-  margin-bottom: 10px;
+.card h3 {
+  margin: 0 0 10px;
+  font-size: 18px;
+  color: #333;
+}
+
+/* ===== Placeholder Chart ===== */
+.chart-placeholder {
+  height: 240px;
+  background: linear-gradient(180deg, #e3f2fd, #ffffff);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  font-size: 16px;
 }
 
 /* ===== Responsive ===== */
 @media (max-width: 900px) {
   .container {
-    flex-direction: column;
-  }
-  .sidebar {
-    width: 100%;
+    grid-template-columns: 1fr;
   }
 }
 </style>
@@ -100,34 +158,66 @@ body {
 
 <div class="container">
 
-  <!-- Sidebar -->
+  <!-- ===== Sidebar ===== -->
   <div class="sidebar">
 
     <div class="channel" onclick="openDevice(1)">
-      <h4>Channel 1</h4>
-      <span>-- °C</span>
+      <div class="channel-left">
+        <div class="icon">🌡️</div>
+        <div>
+          <h4>Channel 1</h4>
+          <small>Last update 9m ago</small>
+        </div>
+      </div>
+      <span>20.9 °C</span>
     </div>
 
     <div class="channel" onclick="openDevice(2)">
-      <h4>Channel 2</h4>
-      <span>-- °C</span>
+      <div class="channel-left">
+        <div class="icon">🌡️</div>
+        <div>
+          <h4>Channel 2</h4>
+          <small>Last update 9m ago</small>
+        </div>
+      </div>
+      <span style="color:#1976d2;">18.99 °C</span>
     </div>
 
     <div class="channel" onclick="openDevice(3)">
-      <h4>Channel 3</h4>
-      <span>-- °C</span>
+      <div class="channel-left">
+        <div class="icon">🌡️</div>
+        <div>
+          <h4>Channel 3</h4>
+          <small>Last update 9m ago</small>
+        </div>
+      </div>
+      <span>21.11 °C</span>
     </div>
 
   </div>
 
-  <!-- Main Content -->
+  <!-- ===== Main ===== -->
   <div class="main">
-    <div class="update-time" id="time">Last update --</div>
-    <h3 style="color:#1976d2;">กรุณาเลือก Channel ทางด้านซ้าย</h3>
-    <p style="color:#666;">
-      ระบบยังคงทำงานเหมือนเดิม  
-      เมื่อเลือก Channel จะไปยังหน้า Dashboard
-    </p>
+
+    <div class="info-bar">
+      <div class="info-title">Analytics Dashboard</div>
+      <div class="update-time" id="time">Last update --</div>
+    </div>
+
+    <div class="card">
+      <h3>Temperature</h3>
+      <div class="chart-placeholder">
+        Temperature Chart
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Humidity</h3>
+      <div class="chart-placeholder">
+        Humidity Chart
+      </div>
+    </div>
+
   </div>
 
 </div>
