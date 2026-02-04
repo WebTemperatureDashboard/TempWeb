@@ -92,7 +92,7 @@ canvas {
 
 <script>
 /* ===== Device Config ===== */
-const devices = {
+const selectDevice = {
   1: { name: "ESP32 – ห้องที่ 1", channel: "3011291", key: "7DJJKPQNXVMO4U21" },
   2: { name: "ESP32 – ห้องที่ 2", channel: "XXXXXXX", key: "YYYYYYY" },
   3: { name: "ESP32 – ห้องที่ 3", channel: "ZZZZZZZ", key: "WWWWWWW" }
@@ -100,7 +100,7 @@ const devices = {
 
 /* ===== Get Device ID ===== */
 const params = new URLSearchParams(window.location.search);
-const id = params.get("device");
+const id = params.get("selectDevice");
 const device = devices[channel];
 
 document.getElementById("title").innerText = device.name;
@@ -197,4 +197,5 @@ setInterval(loadData, 20000);
 
 </body>
 </html>
+
 
