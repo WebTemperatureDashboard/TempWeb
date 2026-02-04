@@ -15,9 +15,22 @@ body {
   text-align: center;
 }
 
+/* ===== Back Button ===== */
+.back-btn {
+  margin: 15px;
+  padding: 12px 22px;
+  font-size: 20px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(90deg, #1976d2, #0d47a1);
+  color: white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+}
+
 /* ===== Title ===== */
 h1 {
-  margin: 20px;
+  margin: 10px 15px 20px;
   padding: 20px;
   font-size: 28px;
   background: linear-gradient(90deg, #0d47a1, #1976d2);
@@ -36,7 +49,7 @@ h1 {
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-/* ===== Chart ===== */
+/* ===== Chart Card ===== */
 .chart {
   background: white;
   margin: 20px;
@@ -45,48 +58,47 @@ h1 {
   box-shadow: 0 6px 16px rgba(0,0,0,0.2);
 }
 
+.chart h2 {
+  margin-bottom: 15px;
+  color: #0d47a1;
+}
+
 canvas {
   height: 320px !important;
 }
-  .back-btn {
-  margin: 15px;
-  padding: 12px 22px;
-  font-size: 20px;
-  border-radius: 14px;
-  border: none;
-  cursor: pointer;
-  background: linear-gradient(90deg, #1976d2, #0d47a1);
-  color: white;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-}
-
-.back-btn:hover {
-  opacity: 0.9;
-}
-
 </style>
 </head>
 
 <body>
 
-<h1 id="title">ESP32 Dashboard</h1>
-
 <button class="back-btn" onclick="goHome()">⬅ กลับหน้าแรก</button>
+
+<h1 id="title">ESP32 Dashboard</h1>
 
 <div class="box">🌡 อุณหภูมิ : <b><span id="temp">--</span> °C</b></div>
 <div class="box">💧 ความชื้น : <b><span id="hum">--</span> %</b></div>
 
+<!-- ===== Temperature Chart ===== -->
 <div class="chart">
-  <canvas id="chart"></canvas>
+  <h2>🌡 Temperature (°C)</h2>
+  <canvas id="tempChart"></canvas>
+</div>
+
+<!-- ===== Humidity Chart ===== -->
+<div class="chart">
+  <h2>💧 Humidity (%)</h2>
+  <canvas id="humChart"></canvas>
 </div>
 
 <script>
+/* ===== Device Config ===== */
 const devices = {
   1: { name: "ESP32 – ห้องที่ 1", channel: "3011291", key: "7DJJKPQNXVMO4U21" },
   2: { name: "ESP32 – ห้องที่ 2", channel: "XXXXXXX", key: "YYYYYYY" },
   3: { name: "ESP32 – ห้องที่ 3", channel: "ZZZZZZZ", key: "WWWWWWW" }
 };
 
+/* ===== Get Device ID ===== */
 const params = new URLSearchParams(window.location.search);
 const id = params.get("device");
 const device = devices[id];
@@ -95,59 +107,93 @@ document.getElementById("title").innerText = device.name;
 
 const url = `https://api.thingspeak.com/channels/${device.channel}/feeds.json?results=20&api_key=${device.key}`;
 
-let chart;
+let tempChart, humChart;
 
+/* ===== Load Data ===== */
 async function loadData() {
   const res = await fetch(url);
   const data = await res.json();
 
   const labels = [];
-  const temp = [];
-  const hum = [];
+  const tempData = [];
+  const humData = [];
 
   data.feeds.forEach(f => {
     labels.push(new Date(f.created_at).toLocaleTimeString('th-TH'));
-    temp.push(f.field1);
-    hum.push(f.field2);
+    tempData.push(Number(f.field1));
+    humData.push(Number(f.field2));
   });
 
-  document.getElementById("temp").innerText = temp.at(-1);
-  document.getElementById("hum").innerText = hum.at(-1);
+  document.getElementById("temp").innerText = tempData.at(-1) ?? "--";
+  document.getElementById("hum").innerText = humData.at(-1) ?? "--";
 
-  if (chart) chart.destroy();
-  chart = new Chart(document.getElementById("chart"), {
+  drawTempChart(labels, tempData);
+  drawHumChart(labels, humData);
+}
+
+/* ===== Charts ===== */
+function chartOptions() {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        labels: { font: { size: 18 } }
+      }
+    },
+    scales: {
+      x: { ticks: { font: { size: 16 } } },
+      y: { ticks: { font: { size: 16 } } }
+    }
+  };
+}
+
+function drawTempChart(labels, data) {
+  if (tempChart) tempChart.destroy();
+  tempChart = new Chart(document.getElementById("tempChart"), {
     type: "line",
     data: {
       labels,
-      datasets: [
-        {
-          label: "Temperature (°C)",
-          data: temp,
-          borderColor: "#d32f2f",
-          tension: 0.3
-        },
-        {
-          label: "Humidity (%)",
-          data: hum,
-          borderColor: "#1976d2",
-          tension: 0.3
-        }
-      ]
-    }
+      datasets: [{
+        label: "Temperature °C",
+        data,
+        borderColor: "#d32f2f",
+        backgroundColor: "rgba(211,47,47,0.15)",
+        fill: true,
+        tension: 0.3
+      }]
+    },
+    options: chartOptions()
   });
+}
+
+function drawHumChart(labels, data) {
+  if (humChart) humChart.destroy();
+  humChart = new Chart(document.getElementById("humChart"), {
+    type: "line",
+    data: {
+      labels,
+      datasets: [{
+        label: "Humidity %",
+        data,
+        borderColor: "#1976d2",
+        backgroundColor: "rgba(25,118,210,0.15)",
+        fill: true,
+        tension: 0.3
+      }]
+    },
+    options: chartOptions()
+  });
+}
+
+/* ===== Back ===== */
+function goHome() {
+  window.location.href = "index.html";
 }
 
 loadData();
 setInterval(loadData, 20000);
-
-  function goHome() {
-  window.location.href = "index.html";
-}
-
 </script>
 
 </body>
 </html>
-
-
-
