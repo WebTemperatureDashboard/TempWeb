@@ -290,6 +290,7 @@ async function loadCharts() {
 
       const tempData = json.feeds.map(f => f[`field${ch.temp}`]);
       const humData  = json.feeds.map(f => f[`field${ch.hum}`]);
+      
       const tStats = calcStats(tempData);
 if (tStats) {
   document.getElementById("tempStats").innerText =
@@ -409,6 +410,7 @@ setInterval(() => {
 
 </body>
 </html>
+
 
 
 
