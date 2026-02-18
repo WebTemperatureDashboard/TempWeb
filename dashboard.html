@@ -6,6 +6,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-gauge@3.0.0/dist/chartjs-chart-gauge.min.js"></script>
+
 
 <style>
 body {
@@ -78,6 +80,15 @@ canvas {
 <div class="box">🌡 อุณหภูมิ : <b><span id="temp">--</span> °C</b></div>
 <div class="box">💧 ความชื้น : <b><span id="hum">--</span> %</b></div>
 
+<div class="chart">
+  <h2>🌡 Temperature Gauge</h2>
+  <canvas id="tempGauge"></canvas>
+</div>
+
+<div class="chart">
+  <h2>💧 Humidity Gauge</h2>
+  <canvas id="humGauge"></canvas>
+</div>
 
 <!-- ===== Temperature Chart ===== -->
 <div class="chart">
@@ -108,7 +119,7 @@ document.getElementById("title").innerText = device.name;
 
 const url = `https://api.thingspeak.com/channels/${device.channel}/feeds.json?results=20&api_key=${device.key}`;
 
-let tempChart, humChart;
+let tempChart, humChart, tempGauge, humGauge;
 
 /* ===== Load Data ===== */
 async function loadData() {
@@ -127,6 +138,12 @@ async function loadData() {
 
   document.getElementById("temp").innerText = tempData.at(-1) ?? "--";
   document.getElementById("hum").innerText = humData.at(-1) ?? "--";
+  const latestTemp = tempData.at(-1);
+const latestHum = humData.at(-1);
+
+if (latestTemp) drawTempGauge(latestTemp);
+if (latestHum) drawHumGauge(latestHum);
+
 
   drawTempChart(labels, tempData);
   drawHumChart(labels, humData);
@@ -187,6 +204,77 @@ function drawHumChart(labels, data) {
   });
 }
 
+function drawTempGauge(value) {
+  if (tempGauge) tempGauge.destroy();
+
+  tempGauge = new Chart(document.getElementById("tempGauge"), {
+    type: "gauge",
+    data: {
+      datasets: [{
+        value: value,
+        minValue: 0,
+        data: [20, 30, 40],
+        backgroundColor: [
+          "#66bb6a",   // เขียว ปกติ
+          "#ffa726",   // ส้ม เตือน
+          "#ef5350"    // แดง อันตราย
+        ]
+      }]
+    },
+    options: {
+      responsive: true,
+      needle: {
+        radiusPercentage: 2,
+        widthPercentage: 3,
+        lengthPercentage: 80,
+        color: "black"
+      },
+      valueLabel: {
+        display: true,
+        formatter: (v) => v + " °C",
+        fontSize: 20
+      }
+    }
+  });
+}
+
+function drawhumGauge(value) {
+  if (humGauge) humGauge.destroy();
+
+  humGauge = new Chart(document.getElementById("humGauge"), {
+    type: "gauge",
+    data: {
+      datasets: [{
+        value: value,
+        minValue: 0,
+        data: [20, 30, 40],
+        backgroundColor: [
+          "#66bb6a",   // เขียว ปกติ
+          "#ffa726",   // ส้ม เตือน
+          "#ef5350"    // แดง อันตราย
+        ]
+      }]
+    },
+    options: {
+      responsive: true,
+      needle: {
+        radiusPercentage: 2,
+        widthPercentage: 3,
+        lengthPercentage: 80,
+        color: "black"
+      },
+      valueLabel: {
+        display: true,
+        formatter: (v) => v + " °C",
+        fontSize: 20
+      }
+    }
+  });
+}
+
+
+
+  
 /* ===== Back ===== */
 function goHome() {
   window.location.href = "index.html";
@@ -198,6 +286,7 @@ setInterval(loadData, 20000);
 
 </body>
 </html>
+
 
 
 
