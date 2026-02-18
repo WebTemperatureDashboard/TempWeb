@@ -136,6 +136,21 @@ body {
   opacity: 0.9;
 }
 
+  .export-btn {
+  background: #2ecc71;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.export-btn:hover {
+  background: #27ae60;
+}
+
+
 </style>
 </head>
 
@@ -188,7 +203,10 @@ body {
   📧 แจ้งปัญหาถึงโปรแกรมเมอร์
 </button>
 
-    
+    <button onclick="exportCSV()" class="export-btn">
+  📥 Export Excel
+</button>
+
   </div>
 
   <!-- Main -->
@@ -419,6 +437,7 @@ setInterval(() => {
 
 </body>
 </html>
+
 
 
 
