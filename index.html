@@ -6,6 +6,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
 
 <style>
 * { box-sizing: border-box; }
@@ -432,13 +434,82 @@ setInterval(() => {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-function exportExcel() {
-  window.location.href = "export_excel.php";
+async function exportExcel() {
+
+  const channels = [
+    { id: 3011291, temp: 1, hum: 2, name: "Channel 1" },
+    { id: 3016529, temp: 1, hum: 2, name: "Channel 2" }
+  ];
+
+  async function fetchData(channelId) {
+    const res = await fetch(
+      `https://api.thingspeak.com/channels/${channelId}/feeds.json?days=7`
+    );
+    const data = await res.json();
+    return data.feeds;
+  }
+
+  let workbook = XLSX.utils.book_new();
+
+  async function createSheet(type, unit, fieldKey) {
+
+    let allData = [];
+    let header = ["DateTime"];
+
+    channels.forEach(c => header.push(`${c.name} (${unit})`));
+
+    allData.push(["FACTORY ENVIRONMENT MONITORING REPORT"]);
+    allData.push([`Report Period : Last 7 Days`]);
+    allData.push([`Generated : ${new Date().toLocaleString()}`]);
+    allData.push([]);
+    allData.push(header);
+
+    let channelData = [];
+
+    for (let ch of channels) {
+      let feeds = await fetchData(ch.id);
+      channelData.push(feeds);
+    }
+
+    for (let i = 0; i < channelData[0].length; i++) {
+
+      let row = [];
+      row.push(
+        new Date(channelData[0][i].created_at).toLocaleString()
+      );
+
+      channels.forEach((ch, index) => {
+        row.push(channelData[index][i][`field${ch[fieldKey]}`]);
+      });
+
+      allData.push(row);
+    }
+
+    let worksheet = XLSX.utils.aoa_to_sheet(allData);
+
+    // Auto column width
+    worksheet["!cols"] = header.map(() => ({ wch: 20 }));
+
+    // Freeze header
+    worksheet["!freeze"] = { xSplit: 0, ySplit: 5 };
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, type);
+  }
+
+  await createSheet("Temperature", "°C", "temp");
+  await createSheet("Humidity", "%", "hum");
+
+  XLSX.writeFile(
+    workbook,
+    `Factory_Report_${new Date().toISOString().slice(0,10)}.xlsx`
+  );
 }
+
   
 </script>
 
 
 </body>
 </html>
+
 
