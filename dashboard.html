@@ -5,7 +5,7 @@
 <title>ESP32 Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-gauge@3.0.0/dist/chartjs-chart-gauge.min.js"></script>
 
 
@@ -266,7 +266,7 @@ function drawHumGauge(value) {
       },
       valueLabel: {
         display: true,
-        formatter: (v) => v + " °C",
+        formatter: (v) => v + " %",
         fontSize: 20
       }
     }
@@ -287,6 +287,7 @@ setInterval(loadData, 20000);
 
 </body>
 </html>
+
 
 
 
