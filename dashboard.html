@@ -5,9 +5,7 @@
 <title>ESP32 Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-gauge@2.0.0/dist/chartjs-chart-gauge.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 
 <style>
@@ -209,73 +207,87 @@ function drawHumChart(labels, data) {
 function drawTempGauge(value) {
   if (tempGauge) tempGauge.destroy();
 
+  const max = 50; // อุณหภูมิสูงสุดที่ต้องการ
+
   tempGauge = new Chart(document.getElementById("tempGauge"), {
-    type: "gauge",
+    type: "doughnut",
     data: {
       datasets: [{
-        value: value,
-        minValue: 0,
-        data: [20, 30, 40],
-        backgroundColor: [
-          "#66bb6a",   // เขียว ปกติ
-          "#ffa726",   // ส้ม เตือน
-          "#ef5350"    // แดง อันตราย
-        ]
+        data: [value, max - value],
+        backgroundColor: ["#d32f2f", "#e0e0e0"],
+        borderWidth: 0
       }]
     },
     options: {
       responsive: true,
-      needle: {
-        radiusPercentage: 2,
-        widthPercentage: 3,
-        lengthPercentage: 80,
-        color: "black"
-      },
-      valueLabel: {
-        display: true,
-        formatter: (v) => v + " °C",
-        fontSize: 20
+      cutout: "75%",
+      rotation: -90,
+      circumference: 180,
+      plugins: {
+        tooltip: { enabled: false },
+        legend: { display: false }
       }
-    }
+    },
+    plugins: [{
+      id: 'text',
+      beforeDraw(chart) {
+        const { width } = chart;
+        const { height } = chart;
+        const ctx = chart.ctx;
+        ctx.restore();
+        ctx.font = "bold 24px Arial";
+        ctx.fillStyle = "#0d47a1";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(value + " °C", width / 2, height * 0.8);
+        ctx.save();
+      }
+    }]
   });
 }
+
 
 function drawHumGauge(value) {
   if (humGauge) humGauge.destroy();
 
+  const max = 100;
+
   humGauge = new Chart(document.getElementById("humGauge"), {
-    type: "gauge",
+    type: "doughnut",
     data: {
       datasets: [{
-        value: value,
-        minValue: 0,
-        data: [20, 30, 40],
-        backgroundColor: [
-          "#66bb6a",   // เขียว ปกติ
-          "#ffa726",   // ส้ม เตือน
-          "#ef5350"    // แดง อันตราย
-        ]
+        data: [value, max - value],
+        backgroundColor: ["#1976d2", "#e0e0e0"],
+        borderWidth: 0
       }]
     },
     options: {
       responsive: true,
-      needle: {
-        radiusPercentage: 2,
-        widthPercentage: 3,
-        lengthPercentage: 80,
-        color: "black"
-      },
-      valueLabel: {
-        display: true,
-        formatter: (v) => v + " %",
-        fontSize: 20
+      cutout: "75%",
+      rotation: -90,
+      circumference: 180,
+      plugins: {
+        tooltip: { enabled: false },
+        legend: { display: false }
       }
-    }
+    },
+    plugins: [{
+      id: 'text',
+      beforeDraw(chart) {
+        const { width } = chart;
+        const { height } = chart;
+        const ctx = chart.ctx;
+        ctx.restore();
+        ctx.font = "bold 24px Arial";
+        ctx.fillStyle = "#0d47a1";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(value + " %", width / 2, height * 0.8);
+        ctx.save();
+      }
+    }]
   });
 }
-
-
-Chart.register(Chart.registry.controllers.get('gauge'));
   
 /* ===== Back ===== */
 function goHome() {
@@ -288,6 +300,7 @@ setInterval(loadData, 20000);
 
 </body>
 </html>
+
 
 
 
