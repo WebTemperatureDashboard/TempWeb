@@ -239,7 +239,7 @@ function drawTempGauge(value) {
   });
 }
 
-function drawhumGauge(value) {
+function drawHumGauge(value) {
   if (humGauge) humGauge.destroy();
 
   humGauge = new Chart(document.getElementById("humGauge"), {
@@ -287,6 +287,7 @@ setInterval(loadData, 20000);
 
 </body>
 </html>
+
 
 
 
