@@ -67,6 +67,45 @@ h1 {
 canvas {
   height: 320px !important;
 }
+
+.dashboard-row {
+  display: flex;
+  gap: 20px;
+  padding: 10px 20px 30px;
+}
+
+/* ===== Gauge Panel (ซ้าย) ===== */
+.gauge-panel {
+  width: 30%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ลดขนาด Gauge */
+.chart.small canvas {
+  height: 200px !important;
+}
+
+/* ===== Line Panel (ขวา) ===== */
+.line-panel {
+  width: 70%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .dashboard-row {
+    flex-direction: column;
+  }
+  .gauge-panel,
+  .line-panel {
+    width: 100%;
+  }
+}
+
 </style>
 </head>
 
@@ -79,27 +118,38 @@ canvas {
 <div class="box">🌡 อุณหภูมิ : <b><span id="temp">--</span> °C</b></div>
 <div class="box">💧 ความชื้น : <b><span id="hum">--</span> %</b></div>
 
-<div class="chart">
-  <h2>🌡 Temperature Gauge</h2>
-  <canvas id="tempGauge"></canvas>
+<div class="dashboard-row">
+
+  <!-- ===== Left Side (Gauge) ===== -->
+  <div class="gauge-panel">
+    <div class="chart small">
+      <h2>🌡 Temperature</h2>
+      <canvas id="tempGauge"></canvas>
+    </div>
+
+    <div class="chart small">
+      <h2>💧 Humidity</h2>
+      <canvas id="humGauge"></canvas>
+    </div>
+  </div>
+
+  <!-- ===== Right Side (Line Charts) ===== -->
+  <div class="line-panel">
+
+    <div class="chart">
+      <h2>🌡 Temperature (°C)</h2>
+      <canvas id="tempChart"></canvas>
+    </div>
+
+    <div class="chart">
+      <h2>💧 Humidity (%)</h2>
+      <canvas id="humChart"></canvas>
+    </div>
+
+  </div>
+
 </div>
 
-<div class="chart">
-  <h2>💧 Humidity Gauge</h2>
-  <canvas id="humGauge"></canvas>
-</div>
-
-<!-- ===== Temperature Chart ===== -->
-<div class="chart">
-  <h2>🌡 Temperature (°C)</h2>
-  <canvas id="tempChart"></canvas>
-</div>
-
-<!-- ===== Humidity Chart ===== -->
-<div class="chart">
-  <h2>💧 Humidity (%)</h2>
-  <canvas id="humChart"></canvas>
-</div>
 
 <script>
 /* ===== Device Config ===== */
@@ -300,6 +350,7 @@ setInterval(loadData, 20000);
 
 </body>
 </html>
+
 
 
 
