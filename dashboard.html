@@ -82,10 +82,17 @@ canvas {
   gap: 20px;
 }
 
-/* ลดขนาด Gauge */
-.chart.small canvas {
-  height: 200px !important;
+.chart.small {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
+
+.chart.small canvas {
+  max-width: 260px;
+  height: 180px !important;
+}
+
 
 /* ===== Line Panel (ขวา) ===== */
 .line-panel {
@@ -254,23 +261,59 @@ function drawHumChart(labels, data) {
   });
 }
 
-function drawTempGauge(value) {
-  if (tempGauge) tempGauge.destroy();
+/* ===== Custom Needle Plugin ===== */
+const needlePlugin = {
+  id: 'needle',
+  afterDatasetDraw(chart, args, options) {
+    const { ctx } = chart;
+    const needleValue = chart.config.data.datasets[0].needleValue;
+    const data = chart.config.data.datasets[0].data;
+    const total = data.reduce((a, b) => a + b, 0);
 
-  const max = 50; // อุณหภูมิสูงสุดที่ต้องการ
+    const angle = Math.PI + (needleValue / total) * Math.PI;
 
-  tempGauge = new Chart(document.getElementById("tempGauge"), {
-    type: "doughnut",
+    const cx = chart.getDatasetMeta(0).data[0].x;
+    const cy = chart.getDatasetMeta(0).data[0].y;
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(angle);
+
+    ctx.beginPath();
+    ctx.moveTo(0, -5);
+    ctx.lineTo(chart.width / 3, 0);
+    ctx.lineTo(0, 5);
+    ctx.fillStyle = "#333";
+    ctx.fill();
+
+    ctx.restore();
+
+    // center circle
+    ctx.beginPath();
+    ctx.arc(cx, cy, 6, 0, 2 * Math.PI);
+    ctx.fillStyle = "#333";
+    ctx.fill();
+  }
+};
+
+/* ===== Gauge Function ===== */
+function createGauge(canvasId, value, maxValue, color) {
+
+  const ctx = document.getElementById(canvasId);
+
+  return new Chart(ctx, {
+    type: 'doughnut',
     data: {
       datasets: [{
-        data: [value, max - value],
-        backgroundColor: ["#d32f2f", "#e0e0e0"],
-        borderWidth: 0
+        data: [value, maxValue - value],
+        backgroundColor: [color, "#eeeeee"],
+        borderWidth: 0,
+        needleValue: value
       }]
     },
     options: {
       responsive: true,
-      cutout: "75%",
+      cutout: "70%",
       rotation: -90,
       circumference: 180,
       plugins: {
@@ -278,65 +321,19 @@ function drawTempGauge(value) {
         legend: { display: false }
       }
     },
-    plugins: [{
-      id: 'text',
-      beforeDraw(chart) {
-        const { width } = chart;
-        const { height } = chart;
-        const ctx = chart.ctx;
-        ctx.restore();
-        ctx.font = "bold 24px Arial";
-        ctx.fillStyle = "#0d47a1";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(value + " °C", width / 2, height * 0.8);
-        ctx.save();
-      }
-    }]
+    plugins: [needlePlugin]
   });
 }
 
+/* ===== เรียกใช้ ===== */
+function drawTempGauge(value){
+  if(tempGauge) tempGauge.destroy();
+  tempGauge = createGauge("tempGauge", value, 100, "#ff6b6b");
+}
 
-function drawHumGauge(value) {
-  if (humGauge) humGauge.destroy();
-
-  const max = 100;
-
-  humGauge = new Chart(document.getElementById("humGauge"), {
-    type: "doughnut",
-    data: {
-      datasets: [{
-        data: [value, max - value],
-        backgroundColor: ["#1976d2", "#e0e0e0"],
-        borderWidth: 0
-      }]
-    },
-    options: {
-      responsive: true,
-      cutout: "75%",
-      rotation: -90,
-      circumference: 180,
-      plugins: {
-        tooltip: { enabled: false },
-        legend: { display: false }
-      }
-    },
-    plugins: [{
-      id: 'text',
-      beforeDraw(chart) {
-        const { width } = chart;
-        const { height } = chart;
-        const ctx = chart.ctx;
-        ctx.restore();
-        ctx.font = "bold 24px Arial";
-        ctx.fillStyle = "#0d47a1";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(value + " %", width / 2, height * 0.8);
-        ctx.save();
-      }
-    }]
-  });
+function drawHumGauge(value){
+  if(humGauge) humGauge.destroy();
+  humGauge = createGauge("humGauge", value, 100, "#4da6ff");
 }
   
 /* ===== Back ===== */
@@ -350,6 +347,7 @@ setInterval(loadData, 20000);
 
 </body>
 </html>
+
 
 
 
